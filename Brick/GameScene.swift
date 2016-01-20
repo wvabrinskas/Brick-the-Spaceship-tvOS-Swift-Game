@@ -167,7 +167,7 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
     
     func didBeginContact(contact: SKPhysicsContact) {
         
-        if contact.bodyA.categoryBitMask == playerCat && contact.bodyB.categoryBitMask == 0x1 << 0  {
+        if (contact.bodyA.categoryBitMask == playerCat && contact.bodyB.categoryBitMask == 0x1 << 0) || (contact.bodyA.categoryBitMask == 0x1 << 0 && contact.bodyB.categoryBitMask == playerCat) {
                 died = true
                 worldNode.speed = 0
                 stars.paused = true

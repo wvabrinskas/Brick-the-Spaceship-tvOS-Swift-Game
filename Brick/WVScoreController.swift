@@ -29,14 +29,14 @@ class WVScoreController {
         
         score = SKLabelNode.init(text: "\(0)")
         score.fontSize = 20
-        score.fontColor = UIColor.whiteColor()
-        score.position = CGPointMake(CGRectGetMidX(sceneFrame),CGRectGetMaxY(sceneFrame) - 150)
+        score.fontColor = UIColor.white
+        score.position = CGPoint(x:sceneFrame.midX,y: sceneFrame.maxY - 150)
         parentNode.addChild(score)
         score.zPosition = 4
         scoreLabel = SKLabelNode.init(text: "Score:")
         scoreLabel.fontSize = 20
-        scoreLabel.fontColor = UIColor.whiteColor()
-        scoreLabel.position = CGPointMake(CGRectGetMidX(sceneFrame) - 50,CGRectGetMaxY(sceneFrame) - 150)
+        scoreLabel.fontColor = UIColor.white
+        scoreLabel.position = CGPoint(x:sceneFrame.midX,y: sceneFrame.maxY - 150)
         scoreLabel.zPosition = 4
         parentNode.addChild(scoreLabel)
     }
@@ -46,7 +46,7 @@ class WVScoreController {
     }
     
     func updateScore () {
-        scoreValue++
+        scoreValue += 1
         score.text = "\(scoreValue)"
     }
     

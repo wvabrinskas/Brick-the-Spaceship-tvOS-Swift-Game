@@ -22,7 +22,7 @@ class WVEnemyController: NSObject {
         sceneFrame = frame;
         parentNode = node
         scoreController = WVScoreController.init()
-        scoreController.setupScoringWithNode(node, frame: frame)
+        scoreController.setupScoringWithNode(node: node, frame: frame)
         self.layoutEnemy()
 
     }
@@ -33,22 +33,22 @@ class WVEnemyController: NSObject {
         enemy.xScale = 2.0;
         enemy.yScale = 2.0;
         enemy.zPosition = 2;
-        enemy.physicsBody = SKPhysicsBody.init(rectangleOfSize:enemy.size);
+        enemy.physicsBody = SKPhysicsBody.init(rectangleOf:enemy.size);
         enemy.physicsBody?.categoryBitMask = enemyCat
         enemy.physicsBody?.contactTestBitMask = 0x1 << 1
         enemy.physicsBody?.collisionBitMask = 0
         enemy.physicsBody?.usesPreciseCollisionDetection = true
         
-        let lowerBound = UInt32(CGRectGetMinX(sceneFrame));
-        let upperBound = UInt32(CGRectGetMaxX(sceneFrame));
+        let lowerBound = UInt32(sceneFrame.minX);
+        let upperBound = UInt32(sceneFrame.maxX);
         let num = arc4random_uniform(upperBound) + lowerBound
         
-        enemy.position = CGPointMake(CGFloat(num),CGRectGetMaxY(sceneFrame) - enemy.size.height)
+        enemy.position = CGPoint(x: CGFloat(num),y: sceneFrame.maxY - enemy.size.height)
         
         parentNode.addChild(enemy)
     }
     
-    func updateScore () {
+    @objc public func updateScore() {
         scoreController.updateScore()
     }
     
@@ -64,18 +64,18 @@ class WVEnemyController: NSObject {
     }
     
     
-    func randomlyGenerateEnemy() {
+    @objc func randomlyGenerateEnemy() {
         self.layoutEnemy()
-        let updateScore = SKAction.performSelector(Selector("updateScore"), onTarget:self)
+        let update = SKAction.perform(#selector(updateScore), onTarget:self)
         let node: SKSpriteNode = enemy
-        let spin:SKAction = SKAction.rotateByAngle(CGFloat(M_PI), duration:1)
-        let spinForever:SKAction = SKAction.repeatActionForever(spin)
-        let move:SKAction = SKAction.moveToY(CGRectGetMinY(sceneFrame) - enemy.size.height, duration:self.spawnInterval())
+        let spin:SKAction = SKAction.rotate(byAngle: CGFloat.pi, duration:1)
+        let spinForever:SKAction = SKAction.repeatForever(spin)
+        let move:SKAction = SKAction.moveTo(y: sceneFrame.minY - enemy.size.height, duration:self.spawnInterval())
         let returnToStart:SKAction = SKAction.removeFromParent()
-        node.runAction(spinForever)
-        node.runAction(move) { () -> Void in
-            node.runAction(updateScore, completion: { () -> Void in
-                node.runAction(returnToStart)
+        node.run(spinForever)
+        node.run(move) { () -> Void in
+            node.run(update, completion: { () -> Void in
+                node.run(returnToStart)
             })
         }
 
@@ -83,11 +83,11 @@ class WVEnemyController: NSObject {
     
     func startTimerForEnemies () {
     
-        let spawn:SKAction = SKAction.performSelector(Selector("randomlyGenerateEnemy"), onTarget:self)
-        let delay:SKAction = SKAction.waitForDuration(0.5)
+        let spawn:SKAction = SKAction.perform(#selector(randomlyGenerateEnemy), onTarget:self)
+        let delay:SKAction = SKAction.wait(forDuration: 0.5)
         let spawnThenDelay:SKAction = SKAction.sequence([spawn,delay])
-        let spawnThenDelayForever:SKAction = SKAction.repeatActionForever(spawnThenDelay)
-        enemy.runAction(spawnThenDelayForever, withKey:"enemy")
+        let spawnThenDelayForever:SKAction = SKAction.repeatForever(spawnThenDelay)
+        enemy.run(spawnThenDelayForever, withKey:"enemy")
  
     }
     

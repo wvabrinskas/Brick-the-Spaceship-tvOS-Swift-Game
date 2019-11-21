@@ -23,12 +23,12 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
     var emissionSprite = SKEmitterNode()
     var explosionSprite = SKEmitterNode()
     var stars = SKEmitterNode()
-
-    override func didMoveToView(view: SKView) {
+    
+    override func didMove(to view: SKView) {
         /* Setup your scene here */
         died = false
-        self.physicsBody = SKPhysicsBody.init(edgeLoopFromRect:CGRectMake(self.frame.origin.x,self.frame.origin.y + 100,self.frame.width,self.frame.height - 100))
-        self.physicsWorld.gravity=CGVectorMake(0,0);
+        self.physicsBody = SKPhysicsBody.init(edgeLoopFrom:CGRect(x: self.frame.origin.x,y: self.frame.origin.y + 100,width: self.frame.width,height: self.frame.height - 100))
+        self.physicsWorld.gravity = CGVector.zero
         self.physicsBody?.categoryBitMask = wallCat
         self.physicsWorld.contactDelegate = self
         self.setupWalls()
@@ -36,7 +36,7 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
         self.generateEmitter()
         self.generateStars()
         enemyController = WVEnemyController.init()
-        enemyController.setupEnemiesInNode(worldNode,frame: self.frame)
+        enemyController.setupEnemiesInNode(node: worldNode,frame: self.frame)
         enemyController.startTimerForEnemies()
         
     }
@@ -44,7 +44,7 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
     func xImpulse()->CGFloat {
         return 200.0
     }
-
+    
     
     func setupWalls () {
         worldNode = SKNode.init()
@@ -52,7 +52,7 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
         worldNode.zPosition = 1;
         
         topBlock = SKNode.init()
-        topBlock.physicsBody = SKPhysicsBody.init(edgeLoopFromRect:CGRectMake(self.frame.origin.x,CGRectGetMaxY(self.frame) - 300,self.frame.width,10))
+        topBlock.physicsBody = SKPhysicsBody.init(edgeLoopFrom:CGRect(x: self.frame.origin.x, y: self.frame.maxY - 300, width: self.frame.width, height: 10))
         topBlock.physicsBody?.categoryBitMask = wallCat
         topBlock.zPosition = 2
         worldNode.addChild(topBlock)
@@ -64,9 +64,9 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
         character.xScale = 0.5;
         character.yScale = 0.5
         character.zPosition = 2;
-        character.position = CGPointMake(CGRectGetMidX(self.frame),200);
-        character.physicsBody=SKPhysicsBody.init(rectangleOfSize:character.size);
-        character.physicsBody?.dynamic = true
+        character.position = CGPoint(x: self.frame.midX, y: 200)
+        character.physicsBody=SKPhysicsBody.init(rectangleOf:character.size);
+        character.physicsBody?.isDynamic = true
         character.physicsBody?.contactTestBitMask = wallCat
         character.physicsBody?.collisionBitMask = 0xffffffff;
         character.physicsBody?.usesPreciseCollisionDetection = true
@@ -77,52 +77,45 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
     }
     
     
-    override func touchesMoved(touches: Set<UITouch>, withEvent event: UIEvent?) {
-        
+    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
         for touch in touches {
-            let prevLocation:CGPoint = touch.previousLocationInNode(worldNode)
-            let location = touch.locationInNode(worldNode)
-
-  
-         
-           // emissionSprite.runAction(totalActions)
+            let prevLocation:CGPoint = touch.previousLocation(in: worldNode)
+            let location = touch.location(in: worldNode)
+            
+            
+            // emissionSprite.runAction(totalActions)
             
             if location.x > prevLocation.x {
                 //finger touch went right
-                character.physicsBody?.applyForce(CGVectorMake(self.xImpulse(), 0))
+                character.physicsBody?.applyForce(CGVector(dx:self.xImpulse(), dy:0))
             }
             
             if location.x < prevLocation.x {
                 //went left
-                character.physicsBody?.applyForce(CGVectorMake(-self.xImpulse(), 0))
-
+                character.physicsBody?.applyForce(CGVector(dx:-self.xImpulse(), dy:0))
+                
             }
             
             if location.y > prevLocation.y {
-                 character.physicsBody?.applyForce(CGVectorMake(0,self.xImpulse()))
+                character.physicsBody?.applyForce(CGVector(dx: 0, dy: self.xImpulse()))
             }
             
             
             if location.y < prevLocation.y {
-                character.physicsBody?.applyForce(CGVectorMake(0, -self.xImpulse()))
+                character.physicsBody?.applyForce(CGVector(dx: 0, dy: -self.xImpulse()))
             }
-            
-            
-            
         }
         
-        
     }
-
     
     func generateExplosion() {
         explosionSprite = SKEmitterNode(fileNamed: "explosion.sks")!
         explosionSprite.position = character.position
         explosionSprite.zPosition = 3
         worldNode.addChild(explosionSprite)
-        let delay = SKAction.waitForDuration(0.4)
-        explosionSprite.runAction(delay) { () -> Void in
-           // self.character.removeFromParent()
+        let delay = SKAction.wait(forDuration: 0.4)
+        explosionSprite.run(delay) { () -> Void in
+            // self.character.removeFromParent()
         }
     }
     
@@ -132,57 +125,57 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
         emissionSprite.position = character.position
         emissionSprite.zPosition = 2
         worldNode.addChild(emissionSprite)
-    
+        
     }
     
     func generateStars () {
         
         stars = SKEmitterNode(fileNamed: "stars.sks")!
-        stars.position = CGPointMake(CGRectGetMidX(self.frame),CGRectGetMaxY(self.frame))
-        stars.particlePositionRange = CGVectorMake(self.frame.size.width,5)
+        stars.position = CGPoint(x: self.frame.midX, y: self.frame.maxY)
+        stars.particlePositionRange = CGVector(dx:self.frame.size.width,dy: 5)
         stars.zPosition = 2
         stars.speed = 1.0
         worldNode.addChild(stars)
         
     }
     
-    override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         if died {
             self.removeAllChildren()
-            self.didMoveToView(self.view!)
+            self.didMove(to: self.view!)
             worldNode.speed = 1
             playAgain.removeFromParent()
         }
     }
     
-   
-    override func update(currentTime: CFTimeInterval) {
+    
+    override func update(_ currentTime: CFTimeInterval) {
         /* Called before each frame is rendered */
-        let moveY:SKAction = SKAction.moveToY(character.position.y - (character.size.height - 20), duration: 0)
-        let moveX:SKAction = SKAction.moveToX(character.position.x, duration: 0)
+        let moveY:SKAction = SKAction.moveTo(y: character.position.y - (character.size.height - 20), duration: 0)
+        let moveX:SKAction = SKAction.moveTo(x: character.position.x, duration: 0)
         let totalActions:SKAction = SKAction.sequence([moveX,moveY])
-        emissionSprite.runAction(totalActions)
+        emissionSprite.run(totalActions)
         
     }
     
     func didBeginContact(contact: SKPhysicsContact) {
         
         if (contact.bodyA.categoryBitMask == playerCat && contact.bodyB.categoryBitMask == 0x1 << 0) || (contact.bodyA.categoryBitMask == 0x1 << 0 && contact.bodyB.categoryBitMask == playerCat) {
-                died = true
-                worldNode.speed = 0
-                stars.paused = true
-                character.removeAllActions()
-                generateExplosion()
-             self.character.removeFromParent()
-                emissionSprite.removeFromParent()
-                self.removeActionForKey("enemy")
-                playAgain = SKLabelNode.init(text: "Tap to play again")
-                playAgain.fontSize = 30
-                playAgain.position = CGPointMake(CGRectGetMidX(self.frame),CGRectGetMidY(self.frame))
-                playAgain.zPosition = 4
-                worldNode.addChild(playAgain)
+            died = true
+            worldNode.speed = 0
+            stars.isPaused = true
+            character.removeAllActions()
+            generateExplosion()
+            self.character.removeFromParent()
+            emissionSprite.removeFromParent()
+            self.removeAction(forKey: "enemy")
+            playAgain = SKLabelNode.init(text: "Tap to play again")
+            playAgain.fontSize = 30
+            playAgain.position = CGPoint(x: self.frame.midX,y: self.frame.midY)
+            playAgain.zPosition = 4
+            worldNode.addChild(playAgain)
             
         }
-
+        
     }
 }

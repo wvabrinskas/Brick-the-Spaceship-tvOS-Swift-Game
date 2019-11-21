@@ -36,7 +36,7 @@ class WVScoreController {
         scoreLabel = SKLabelNode.init(text: "Score:")
         scoreLabel.fontSize = 20
         scoreLabel.fontColor = UIColor.white
-        scoreLabel.position = CGPoint(x:sceneFrame.midX,y: sceneFrame.maxY - 150)
+        scoreLabel.position = CGPoint(x:sceneFrame.midX - 50,y: sceneFrame.maxY - 150)
         scoreLabel.zPosition = 4
         parentNode.addChild(scoreLabel)
     }
